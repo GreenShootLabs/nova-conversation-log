@@ -126,12 +126,13 @@
 </template>
 
 <script>
-    import format from "date-fns/format";
-    import parse from "date-fns/parse";
+import format from "date-fns/format";
+import parse from "date-fns/parse";
 
-    import ToggleButton from "vue-js-toggle-button/src/Button";
+import ToggleButton from "vue-js-toggle-button/src/Button";
 
-    export default {
+export default {
+    props: ['user'],
     components: {
         ToggleButton
     },
@@ -147,10 +148,11 @@
         };
     },
     mounted() {
-        this.userId = this.$route.params.user;
-        this.fetchMessages(this.$route.params.user, 0);
-        this.fetchContextLog(this.$route.params.user);
-        this.isUserInHandOverMode(this.$route.params.user)
+        this.userId = (this.user) ? this.user : this.$route.params.user;
+
+        this.fetchMessages(this.userId, 0);
+        this.fetchContextLog(this.userId);
+        this.isUserInHandOverMode(this.userId)
     },
     methods: {
         fetchContextLog(user) {
@@ -184,7 +186,7 @@
                 if (e.target.offsetHeight + e.target.scrollTop == e.target.scrollHeight) {
                     this.messagesOffset = this.messagesOffset + 100;
 
-                    this.fetchMessages(this.$route.params.user, this.messagesOffset);
+                    this.fetchMessages(this.userId, this.messagesOffset);
                 }
             }
         },
@@ -192,7 +194,7 @@
             return format(parse(date), "d MMM YYYY - HH:mm:ss");
         },
         openLiveChat() {
-            window.open("/chat/" + this.$route.params.user, 'newwindow', 'width=500,height=500');
+            window.open("/chat/" + this.userId, 'newwindow', 'width=500,height=500');
         },
         isUserInHandOverMode(user) {
             window.axios
