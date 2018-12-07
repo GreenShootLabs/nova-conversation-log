@@ -1,126 +1,138 @@
 <template>
-    <div class="flex flex-wrap -mx-3 mb-3">
-        <div class="px-3 mb-6 w-2/3">
-            <card class="p-4">
-                <div class="clearfix mb-6">
-                    <heading class="float-left">Conversation Log</heading>
+    <div>
+        <router-link :to="{
+            name: 'detail',
+            params: {
+                resourceName: 'chatbot-users',
+                resourceId: userId
+            }
+        }" class="btn btn-default btn-primary mb-4">
+            Back to the User Profile
+        </router-link>
 
-                    <div class="show-extra-info float-right">
-                        Show extra information:
-                        <toggle-button v-model="showExtraInfo" :labels="{checked: 'on', unchecked: 'off'}" />
+        <div class="flex flex-wrap -mx-3 mb-3">
+            <div class="px-3 mb-6 w-2/3">
+                <card class="p-4">
+                    <div class="clearfix mb-6">
+                        <heading class="float-left">Conversation Log</heading>
+
+                        <div class="show-extra-info float-right">
+                            Show extra information:
+                            <toggle-button v-model="showExtraInfo" :labels="{checked: 'on', unchecked: 'off'}" />
+                        </div>
                     </div>
-                </div>
 
-                <div class="clearfix mb-6" v-if="userInHandOverMode">
-                    <div @click="openLiveChat" id="open" class="live-chat">
-                        Open Live Chat
+                    <div class="clearfix mb-6" v-if="userInHandOverMode">
+                        <div @click="openLiveChat" id="open" class="live-chat">
+                            Open Live Chat
+                        </div>
                     </div>
-                </div>
-                <div class="clearfix mb-6" v-else>
-                    <div id="closed" class="live-chat">
-                        User Not Online
+                    <div class="clearfix mb-6" v-else>
+                        <div id="closed" class="live-chat">
+                            User Not Online
+                        </div>
                     </div>
-                </div>
 
-                <div class="clearfix mb-4">
-                    <div class="float-left"><b>Bot</b></div>
-                    <div class="float-right"><b>User</b></div>
-                </div>
+                    <div class="clearfix mb-4">
+                        <div class="float-left"><b>Bot</b></div>
+                        <div class="float-right"><b>User</b></div>
+                    </div>
 
-                <div class="messages" v-on:scroll="onMessagesScroll">
-                    <div class="message mb-6" v-for="(message, index) in messages">
-                        <template v-if="showExtraInfo">
-                            <template v-if="messages[index-1]">
-                                <div class="text-center mb-3">
-                                    <div v-if="messages[index-1].conversation_id != message.conversation_id" class="text-70">Conversation: {{ message.conversation_id }}</div>
-                                    <div v-if="messages[index-1].scene_id != message.scene_id" class="text-70">Scene: {{ message.scene_id }}</div>
-                                </div>
-                            </template>
-                            <template v-else>
-                                <div class="text-center mb-2">
-                                    <div class="text-70">Conversation: {{ message.conversation_id }}</div>
-                                    <div class="text-70">Scene: {{ message.scene_id }}</div>
-                                </div>
-                            </template>
-                        </template>
-
-                        <template v-if="message.author == 'them'">
-                            <div class="text-left them">
-                                <div class="user-name" v-if="message.user && message.user.name">{{message.user.name}}</div>
-                                <template v-if="message.type == 'image'">
-                                    <div class="text">
-                                        <template v-if="message.data.img_link">
-                                            <a :href="message.data.img_link"><img :src="message.data.img_src" /></a>
-                                        </template>
-                                        <template v-else>
-                                            <img :src="message.data.img_src" />
-                                        </template>
-                                    </div>
-                                </template>
-                                <template v-else-if="message.type == 'action'">
-                                    <div class="text">
-                                        <div>{{ message.message }}</div>
-                                        <button v-for="button in message.data.buttons" class="btn btn-default btn-primary mt-1">{{button.text}}</button>
-                                    </div>
-                                </template>
-                                <template v-else-if="message.type == 'list'">
-                                    <div class="text">
-                                        <div class="list-element" v-for="element in message.data.elements">
-                                            <template v-if="element.image">
-                                                <div class="list-image float-right mb-1 ml-2"><img :src="element.image" /></div>
-                                            </template>
-
-                                            <div class="list-title font-bold mb-1">{{ element.title }}</div>
-                                            <div class="list-subtitle mb-1">{{ element.subtitle }}</div>
-
-                                            <div class="list-button">
-                                                <template v-if="element.button.url">
-                                                    <a class="btn btn-default btn-primary mt-1" :href="element.button.url" :target="element.button.link_new_tab ? '_blank' : '_parent'">{{ element.button.text }}</a>
-                                                </template>
-                                                <template v-else-if="element.button.callback">
-                                                    <button class="btn btn-default btn-primary mt-1">{{ element.button.text }}</button>
-                                                </template>
-                                            </div>
-                                        </div>
+                    <div class="messages" v-on:scroll="onMessagesScroll">
+                        <div class="message mb-6" v-for="(message, index) in messages">
+                            <template v-if="showExtraInfo">
+                                <template v-if="messages[index-1]">
+                                    <div class="text-center mb-3">
+                                        <div v-if="messages[index-1].conversation_id != message.conversation_id" class="text-70">Conversation: {{ message.conversation_id }}</div>
+                                        <div v-if="messages[index-1].scene_id != message.scene_id" class="text-70">Scene: {{ message.scene_id }}</div>
                                     </div>
                                 </template>
                                 <template v-else>
-                                    <div class="text" v-html="message.message"></div>
+                                    <div class="text-center mb-2">
+                                        <div class="text-70">Conversation: {{ message.conversation_id }}</div>
+                                        <div class="text-70">Scene: {{ message.scene_id }}</div>
+                                    </div>
                                 </template>
+                            </template>
 
-                                <div class="time text-xs text-70 mt-1">{{ formatDate(message.created_at) }}</div>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <div class="text-right me">
-                                <div class="text mb-1">{{ message.message }}</div>
-                                <div class="time text-xs text-70 mt-1">{{ formatDate(message.created_at) }}</div>
-                                <div v-if="showExtraInfo" class="text-70 mt-1">
-                                    Matched "{{ message.matched_intent }}" Intent
+                            <template v-if="message.author == 'them'">
+                                <div class="text-left them">
+                                    <div class="user-name" v-if="message.user && message.user.name">{{message.user.name}}</div>
+                                    <template v-if="message.type == 'image'">
+                                        <div class="text">
+                                            <template v-if="message.data.img_link">
+                                                <a :href="message.data.img_link"><img :src="message.data.img_src" /></a>
+                                            </template>
+                                            <template v-else>
+                                                <img :src="message.data.img_src" />
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template v-else-if="message.type == 'action'">
+                                        <div class="text">
+                                            <div>{{ message.message }}</div>
+                                            <button v-for="button in message.data.buttons" class="btn btn-default btn-primary mt-1 mr-2">{{button.text}}</button>
+                                        </div>
+                                    </template>
+                                    <template v-else-if="message.type == 'list'">
+                                        <div class="text">
+                                            <div class="list-element" v-for="element in message.data.elements">
+                                                <template v-if="element.image">
+                                                    <div class="list-image float-right mb-1 ml-2"><img :src="element.image" /></div>
+                                                </template>
+
+                                                <div class="list-title font-bold mb-1">{{ element.title }}</div>
+                                                <div class="list-subtitle mb-1">{{ element.subtitle }}</div>
+
+                                                <div class="list-button">
+                                                    <template v-if="element.button.url">
+                                                        <a class="btn btn-default btn-primary mt-1" :href="element.button.url" :target="element.button.link_new_tab ? '_blank' : '_parent'">{{ element.button.text }}</a>
+                                                    </template>
+                                                    <template v-else-if="element.button.callback">
+                                                        <button class="btn btn-default btn-primary mt-1">{{ element.button.text }}</button>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <div class="text" v-html="message.message"></div>
+                                    </template>
+
+                                    <div class="time text-xs text-70 mt-1">{{ formatDate(message.created_at) }}</div>
                                 </div>
-                            </div>
-                        </template>
-                    </div>
+                            </template>
+                            <template v-else>
+                                <div class="text-right me">
+                                    <div class="text mb-1">{{ message.message }}</div>
+                                    <div class="time text-xs text-70 mt-1">{{ formatDate(message.created_at) }}</div>
+                                    <div v-if="showExtraInfo" class="text-70 mt-1">
+                                        Matched "{{ message.matched_intent }}" Intent
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
 
-                    <div class="loading-indicator" v-if="loading">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <div class="loading-indicator" v-if="loading">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </div>
-                </div>
-            </card>
-        </div>
+                </card>
+            </div>
 
-        <div class="px-3 mb-6 w-1/3">
-            <card class="p-4">
-                <heading class="mb-6">Context Log</heading>
+            <div class="px-3 mb-6 w-1/3">
+                <card class="p-4">
+                    <heading class="mb-6">Context Log</heading>
 
-                <div class="context-log">
-                    <div v-for="row in contextLogs">
-                        <div class="mb-2">{{ row.created_at }}: {{ row.data_type }}: {{ row.value }}</div>
+                    <div class="context-log">
+                        <div v-for="row in contextLogs">
+                            <div class="mb-2">{{ row.created_at }}: {{ row.data_type }}: {{ row.value }}</div>
+                        </div>
                     </div>
-                </div>
-            </card>
+                </card>
+            </div>
         </div>
     </div>
 </template>
